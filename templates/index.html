@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureScanner - Security Analysis Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-custom {
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            color: #0d47a1;
+            margin-bottom: 1rem;
+        }
+        .result-box {
+            display: none;
+            margin-top: 2rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt"></i> SecureScanner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="scanner.html">Scanner</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="spam.html">Detect Spam</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="py-5 gradient-custom text-white">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold">Comprehensive Security Analysis Tool</h1>
+                    <p class="lead">Detect vulnerabilities and protect your web applications with our advanced security scanner.</p>
+                    <a href="#scanner" class="btn btn-light btn-lg">Start Scanning</a>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://via.placeholder.com/600x400" alt="Security" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Key Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-search feature-icon"></i>
+                        <h3>Vulnerability Scanner</h3>
+                        <p>Comprehensive security analysis with 20+ vulnerability checks.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-shield-virus feature-icon"></i>
+                        <h3>Spam Detection</h3>
+                        <p>Advanced spam message detection using machine learning.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h3>Risk Analysis</h3>
+                        <p>Detailed risk scoring and security recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scanner Section -->
+    <section id="scanner" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">Security Tools</h2>
+            <div class="row justify-content-center g-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-search feature-icon"></i>
+                            <h3>Vulnerability Scanner</h3>
+                            <p>Scan websites for security vulnerabilities and get detailed analysis reports.</p>
+                            <a href="scanner.html" class="btn btn-primary">Launch Scanner</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-virus feature-icon"></i>
+                            <h3>Spam Detector</h3>
+                            <p>Check messages for spam content using advanced machine learning.</p>
+                            <a href="spam.html" class="btn btn-primary">Launch Detector</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 gradient-custom text-white">
+        <div class="container text-center">
+            <p>© 2024 SecureScanner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('vulnerabilityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('url').value;
+            const loading = document.querySelector('.loading');
+            const resultBox = document.querySelector('.result-box');
+            const resultsDiv = document.getElementById('scanResults');
+
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/vulnerabilityanalysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url }),
+                });
+
+                const data = await response.json();
+                
+                // Format and display results
+                let resultsHTML = `
+                    <div class="alert ${data.status === 'success' ? 'alert-success' : 'alert-danger'}">
+                        <h4>Risk Score: ${data.analysis.risk_score}%</h4>
+                    </div>
+                    <div class="accordion" id="scanResultsAccordion">`;
+
+                // Add sections for each analysis type
+                if (data.status === 'success') {
+                    const analysis = data.analysis;
+                    resultsHTML += createAccordionItem('Basic Info', analysis.basic_info);
+                    resultsHTML += createAccordionItem('SSL Certificate', analysis.ssl_certificate);
+                    resultsHTML += createAccordionItem('Security Headers', analysis.security_headers);
+                    resultsHTML += createAccordionItem('Vulnerabilities', analysis.vulnerabilities);
+                }
+
+                resultsHTML += '</div>';
+                resultsDiv.innerHTML = resultsHTML;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            } finally {
+                loading.style.display = 'none';
+                resultBox.style.display = 'block';
+            }
+        });
+
+        function createAccordionItem(title, content) {
+            const id = title.toLowerCase().replace(/\s+/g, '-');
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${id}">
+                            ${title}
+                        </button>
+                    </h2>
+                    <div id="${id}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <pre>${JSON.stringify(content, null, 2)}</pre>
+                        </div>
+                    </div>
+                </div>`;
+        }
+    </script>
+</body>
+</html> 

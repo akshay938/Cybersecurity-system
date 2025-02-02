@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerability Scanner - SecureScanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-custom {
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+        }
+        .result-box {
+            display: none;
+            margin-top: 2rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt"></i> SecureScanner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="scanner.html">Scanner</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="spam.html">Detect Spam</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Scanner Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Vulnerability Scanner</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="vulnerabilityForm">
+                                <div class="mb-3">
+                                    <label for="url" class="form-label">Enter Website URL</label>
+                                    <input type="url" class="form-control" id="url" required placeholder="https://example.com">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Scan for Vulnerabilities</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Analyzing... Please wait</p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="result-box">
+                <h3>Scan Results</h3>
+                <div id="scanResults"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('vulnerabilityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value;
+            const loadingDiv = document.querySelector('.loading');
+            const resultBox = document.querySelector('.result-box');
+            const resultsDiv = document.getElementById('scanResults');
+
+            try {
+                // Show loading state
+                loadingDiv.style.display = 'block';
+                resultBox.style.display = 'none';
+
+                // Send request to backend
+                const response = await fetch('/vulnerabilityanalysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                resultBox.style.display = 'block';
+
+                if (data.status === 'success') {
+                    const analysis = data.analysis;
+                    let resultsHTML = `
+                        <div class="alert ${analysis.risk_score > 50 ? 'alert-danger' : 'alert-success'} mb-3">
+                            <h4 class="alert-heading">
+                                <i class="fas ${analysis.risk_score > 50 ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
+                                Risk Score: ${analysis.risk_score}%
+                            </h4>
+                        </div>
+                    `;
+
+                    // Add vulnerability section
+                    if (analysis.vulnerabilities.length > 0) {
+                        resultsHTML += `
+                            <div class="card mb-3">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-bug"></i> 
+                                        Detected Vulnerabilities (${analysis.vulnerabilities.length})
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="accordion" id="vulnAccordion">
+                                        ${analysis.vulnerabilities.map((vuln, index) => `
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button collapsed" type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#vuln${index}">
+                                                        <span class="badge bg-${vuln.severity === 'High' ? 'danger' : 
+                                                                      vuln.severity === 'Medium' ? 'warning' : 'info'} me-2">
+                                                            ${vuln.severity}
+                                                        </span>
+                                                        ${vuln.type}
+                                                    </button>
+                                                </h2>
+                                                <div id="vuln${index}" class="accordion-collapse collapse" 
+                                                     data-bs-parent="#vulnAccordion">
+                                                    <div class="accordion-body">
+                                                        <p><strong>Description:</strong> ${vuln.description}</p>
+                                                        ${vuln.cves ? `
+                                                            <p><strong>Associated CVEs:</strong></p>
+                                                            <ul>
+                                                                ${vuln.cves.map(cve => `
+                                                                    <li>
+                                                                        <a href="https://nvd.nist.gov/vuln/detail/${cve}" 
+                                                                           target="_blank">
+                                                                            ${cve}
+                                                                        </a>
+                                                                    </li>
+                                                                `).join('')}
+                                                            </ul>
+                                                        ` : ''}
+                                                        ${vuln.recommendation ? `
+                                                            <p><strong>Recommendation:</strong> ${vuln.recommendation}</p>
+                                                        ` : ''}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Basic Information, SSL, and Open Ports sections in card format
+                    resultsHTML += `
+                        <div class="card mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Basic Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><strong>Domain:</strong> ${analysis.basic_info.domain}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>IP Address:</strong> ${analysis.basic_info.ip}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Protocol:</strong> ${analysis.basic_info.protocol}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header ${analysis.ssl_certificate.valid ? 'bg-success' : 'bg-danger'} text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lock"></i> 
+                                    SSL Certificate
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Status:</strong> 
+                                            <span class="badge ${analysis.ssl_certificate.valid ? 'bg-success' : 'bg-danger'}">
+                                                ${analysis.ssl_certificate.valid ? 'Valid' : 'Invalid'}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    ${analysis.ssl_certificate.expires ? `
+                                        <div class="col-md-6">
+                                            <p><strong>Expires:</strong> ${analysis.ssl_certificate.expires}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-network-wired"></i> 
+                                    Open Ports
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Port Number</th>
+                                                        <th>Common Usage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${analysis.open_ports.map(port => `
+                                                        <tr>
+                                                            <td>${port}</td>
+                                                            <td>${getPortDescription(port)}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    resultsHTML += '</div>';
+                    resultsDiv.innerHTML = resultsHTML;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> Error: ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultBox.style.display = 'block';
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> Error scanning URL. Please try again.
+                    </div>
+                `;
+            }
+        });
+
+        function createAccordionItem(title, content) {
+            const itemId = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}">
+                            ${title}
+                        </button>
+                    </h2>
+                    <div id="${itemId}" class="accordion-collapse collapse" data-bs-parent="#vulnerabilityAccordion">
+                        <div class="accordion-body">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Add this helper function at the bottom of the script
+        function getPortDescription(port) {
+            const commonPorts = {
+                '20': 'FTP (Data)',
+                '21': 'FTP (Control)',
+                '22': 'SSH',
+                '23': 'Telnet',
+                '25': 'SMTP',
+                '53': 'DNS',
+                '80': 'HTTP',
+                '443': 'HTTPS',
+                '3306': 'MySQL',
+                '5432': 'PostgreSQL',
+                '8080': 'HTTP Alternate'
+            };
+            return commonPorts[port] || 'Unknown';
+        }
+    </script>
+</body>
+</html> 
