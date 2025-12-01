@@ -308,3 +308,32 @@ yarl==1.18.3
 yfinance==0.2.52 '''
 ---
 
+
+#### 2️ Run the system
+bash
+Copy code
+python main.py
+##### 3️ Enter the URL / Message
+The tool will automatically:
+
+Scan vulnerabilities
+
+Detect spam
+
+Display detailed results
+
+🛠️ Future Enhancements
+Integrate Flask web dashboard
+
+Add database logging
+
+Improve spam dataset for more accuracy
+
+Add email scanning module
+
+Add CVE-based vulnerability cross-matching
+
+###### 👤 Author
+Akshay Kumar Racharla
+B.Tech – CSE (Cybersecurity)
+GitHub: github.com/akshay938
