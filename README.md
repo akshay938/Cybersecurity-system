@@ -306,11 +306,11 @@ wsproto==1.2.0
 yarl==1.18.3
 yfinance==0.2.52
 
-### 2️⃣ Run the system
+#### 2️⃣ Run the system
 bash
 Copy code
 python main.py
-### 3️⃣ Enter the URL / Message
+##### 3️⃣ Enter the URL / Message
 The tool will automatically:
 
 Scan vulnerabilities
@@ -330,7 +330,7 @@ Add email scanning module
 
 Add CVE-based vulnerability cross-matching
 
-👤 Author
+###### 👤 Author
 Akshay Kumar Racharla
 B.Tech – CSE (Cybersecurity)
 GitHub: github.com/akshay938
