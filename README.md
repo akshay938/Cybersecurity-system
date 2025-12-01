@@ -68,9 +68,10 @@ Cybersecurity-system/
 └── tempCodeRunnerFile.py
 ## ⚙️ **How to Run the Project**
 
-### 1️⃣ Install dependencies
+### 1️ Install dependencies
 ```bash
 pip install -r requirements.txt
+*YOU NEED TO DOWNLOAD THE BELOW VERSIONS IF YOUR SYSTEM ASKS FOR DEPENDENCIES*
 absl-py==2.1.0
 aiohappyeyeballs==2.4.4
 aiohttp==3.11.11
@@ -306,11 +307,11 @@ wsproto==1.2.0
 yarl==1.18.3
 yfinance==0.2.52
 
-#### 2️⃣ Run the system
+#### 2️ Run the system
 bash
 Copy code
 python main.py
-##### 3️⃣ Enter the URL / Message
+##### 3️ Enter the URL / Message
 The tool will automatically:
 
 Scan vulnerabilities
