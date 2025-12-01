@@ -219,8 +219,7 @@ def check_information_disclosure(url):
         'credit_card': r'\b\d{4}[-. ]?\d{4}[-. ]?\d{4}[-. ]?\d{4}\b'
     }
     
-    found_info = {}\
-    
+    found_info = {}
     try:
         response = requests.get(url)
         for info_type, pattern in patterns.items():
