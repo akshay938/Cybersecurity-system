@@ -219,7 +219,7 @@ def check_information_disclosure(url):
         'credit_card': r'\b\d{4}[-. ]?\d{4}[-. ]?\d{4}[-. ]?\d{4}\b'
     }
     
-    found_info = {}\
+    found_info = {}
     
     try:
         response = requests.get(url)
@@ -507,4 +507,4 @@ def detect_spam():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(host="0.0.0.0", port=10000) 
